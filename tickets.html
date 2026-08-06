@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>เลือกคอนเสิร์ต | LIVEHUB TH</title>
+
+  <link rel="stylesheet" href="css/style.css">
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: Arial, sans-serif;
+      background: #080808;
+      color: #ffffff;
+    }
+
+    .header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 20px 28px;
+      border-bottom: 1px solid #242424;
+      background: #050505;
+    }
+
+    .brand {
+      color: #ffffff;
+      text-decoration: none;
+      font-size: 22px;
+      font-weight: 700;
+    }
+
+    .account-link {
+      color: #ffffff;
+      text-decoration: none;
+    }
+
+    .container {
+      width: min(1100px, calc(100% - 36px));
+      margin: 0 auto;
+      padding: 56px 0 80px;
+    }
+
+    .eyebrow {
+      margin: 0 0 10px;
+      color: #ff1493;
+      font-weight: 700;
+      letter-spacing: 2px;
+    }
+
+    h1 {
+      margin: 0 0 14px;
+      font-size: clamp(38px, 8vw, 72px);
+      line-height: 1;
+    }
+
+    .intro {
+      margin: 0 0 36px;
+      color: #bdbdc7;
+      font-size: 18px;
+    }
+
+    .events-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(270px, 1fr));
+      gap: 24px;
+    }
+
+    .event-card {
+      overflow: hidden;
+      border: 1px solid #7b174e;
+      border-radius: 24px;
+      background: #111116;
+    }
+
+    .event-cover {
+      display: flex;
+      align-items: end;
+      min-height: 210px;
+      padding: 24px;
+      background:
+        radial-gradient(circle at top right, rgba(255, 20, 147, 0.35), transparent 42%),
+        linear-gradient(145deg, #21000f, #090909 65%);
+    }
+
+    .event-cover span {
+      color: #ff1493;
+      font-size: 14px;
+      font-weight: 700;
+      letter-spacing: 2px;
+    }
+
+    .event-body {
+      padding: 24px;
+    }
+
+    .event-title {
+      margin: 0 0 14px;
+      font-size: 25px;
+    }
+
+    .event-description {
+      min-height: 48px;
+      margin: 0 0 18px;
+      color: #bdbdc7;
+      line-height: 1.6;
+    }
+
+    .event-meta {
+      display: grid;
+      gap: 9px;
+      margin-bottom: 24px;
+    }
+
+    .price {
+      color: #ff1493;
+      font-size: 30px;
+      font-weight: 700;
+    }
+
+    .buy-button {
+      display: block;
+      width: 100%;
+      padding: 15px 18px;
+      border: 0;
+      border-radius: 12px;
+      background: #ff1493;
+      color: #ffffff;
+      font-size: 17px;
+      font-weight: 700;
+      text-align: center;
+      text-decoration: none;
+      cursor: pointer;
+    }
+
+    .buy-button:hover {
+      background: #e6007e;
+    }
+
+    @media (max-width: 600px) {
+      .header {
+        padding: 18px;
+      }
+
+      .container {
+        width: min(100% - 28px, 1100px);
+        padding-top: 40px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <header class="header">
+    <a class="brand" href="index.html">LIVEHUB TH</a>
+    <a class="account-link" href="dashboard.html">บัญชีของฉัน</a>
+  </header>
+
+  <main class="container">
+    <p class="eyebrow">LIVE / REPLAY</p>
+    <h1>เลือกคอนเสิร์ต</h1>
+    <p class="intro">เลือกงานที่ต้องการรับชม แล้วดำเนินการซื้อสิทธิ์เข้าชม</p>
+
+    <section class="events-grid">
+      <article class="event-card">
+        <div class="event-cover">
+          <span>LIVE CONCERT</span>
+        </div>
+
+        <div class="event-body">
+          <h2 class="event-title">BODYSLAM LIVE 2026</h2>
+          <p class="event-description">รับชมการถ่ายทอดสดและดูย้อนหลังตามระยะเวลาที่กำหนด</p>
+
+          <div class="event-meta">
+            <div>วันที่ 15 กันยายน 2026</div>
+            <div class="price">฿399</div>
+          </div>
+
+          <a
+            class="buy-button"
+            href="payment.html?event=1&title=BODYSLAM%20LIVE%202026&price=399"
+          >
+            ซื้อบัตร
+          </a>
+        </div>
+      </article>
+
+      <article class="event-card">
+        <div class="event-cover">
+          <span>LIVE CONCERT</span>
+        </div>
+
+        <div class="event-body">
+          <h2 class="event-title">BIG ASS LIVE</h2>
+          <p class="event-description">รับชมสดแบบเต็มโชว์ พร้อมสิทธิ์เข้าชม Replay</p>
+
+          <div class="event-meta">
+            <div>วันที่ 30 กันยายน 2026</div>
+            <div class="price">฿299</div>
+          </div>
+
+          <a
+            class="buy-button"
+            href="payment.html?event=2&title=BIG%20ASS%20LIVE&price=299"
+          >
+            ซื้อบัตร
+          </a>
+        </div>
+      </article>
+
+      <article class="event-card">
+        <div class="event-cover">
+          <span>LIVE CONCERT</span>
+        </div>
+
+        <div class="event-body">
+          <h2 class="event-title">COCKTAIL LIVE</h2>
+          <p class="event-description">คอนเสิร์ตออนไลน์พร้อมระบบตรวจสอบสิทธิ์สมาชิก</p>
+
+          <div class="event-meta">
+            <div>วันที่ 10 ตุลาคม 2026</div>
+            <div class="price">฿499</div>
+          </div>
+
+          <a
+            class="buy-button"
+            href="payment.html?event=3&title=COCKTAIL%20LIVE&price=499"
+          >
+            ซื้อบัตร
+          </a>
+        </div>
+      </article>
+    </section>
+  </main>
+</body>
+</html>
