@@ -1,1 +1,0 @@
-const menuButton=document.getElementById("menuButton");const siteNav=document.getElementById("siteNav");if(menuButton&&siteNav){menuButton.addEventListener("click",()=>siteNav.classList.toggle("open"));}
