@@ -406,28 +406,22 @@ LIVEHUB TH
     orderMessage.textContent = "";
 
     try {
-      const user = await getCurrentUser();
+      await getCurrentUser();
 
-      const response = await fetch("/api/orders", {
-        method: "POST",
+const response = await fetch("/api/orders", {
+  method: "POST",
 
-        headers: {
-          "Content-Type": "application/json",
-          "Accept": "application/json"
-        },
+  headers: {
+    "Content-Type": "application/json",
+    "Accept": "application/json"
+  },
 
-        credentials: "include",
+  credentials: "include",
 
-        body: JSON.stringify({
-          concert_id: Number(selectedConcert.id),
-
-          /*
-            ใส่ชั่วคราวเพื่อให้ทำงานกับ orders.js
-            เวอร์ชันที่สร้างไว้ก่อนหน้านี้
-          */
-          user_id: Number(user.id)
-        })
-      });
+  body: JSON.stringify({
+    concert_id: Number(selectedConcert.id)
+  })
+});
 
       const data = await response.json();
 
@@ -672,3 +666,5 @@ LIVEHUB TH
 
   initializePaymentPage();
 </script>
+</body>
+</html>
