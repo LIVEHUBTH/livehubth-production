@@ -1,1 +1,26 @@
-export async function api(path,options={}){const response=await fetch(path,{credentials:"include",headers:{"Content-Type":"application/json",...(options.headers||{})},...options});const data=await response.json().catch(()=>({}));if(!response.ok)throw new Error(data.error||"เกิดข้อผิดพลาด");return data;}
+const API = "/api";
+
+async function request(url, options = {}) {
+  const res = await fetch(API + url, {
+    headers: {
+      "Content-Type": "application/json"
+    },
+    ...options
+  });
+
+  return res.json();
+}
+
+export async function register(data) {
+  return request("/register", {
+    method: "POST",
+    body: JSON.stringify(data)
+  });
+}
+
+export async function login(data) {
+  return request("/login", {
+    method: "POST",
+    body: JSON.stringify(data)
+  });
+}
