@@ -1,4 +1,93 @@
-<!doctype html><html ...
-* อีเมล
-* รหัสผ่าน
-* ปุ่ม "สมัครสมาชิก"
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>สมัครสมาชิก | LIVEHUB TH</title>
+
+<link rel="stylesheet" href="css/style.css">
+
+<style>
+body{
+    font-family:Arial,sans-serif;
+    background:#090909;
+    color:#fff;
+    margin:0;
+}
+.container{
+    max-width:420px;
+    margin:60px auto;
+    padding:25px;
+}
+h1{
+    color:#ff1493;
+}
+input{
+    width:100%;
+    padding:14px;
+    margin:10px 0;
+    border-radius:8px;
+    border:1px solid #333;
+    background:#111;
+    color:#fff;
+    box-sizing:border-box;
+}
+button{
+    width:100%;
+    padding:14px;
+    border:none;
+    border-radius:8px;
+    background:#ff1493;
+    color:#fff;
+    font-size:16px;
+    cursor:pointer;
+}
+#result{
+    margin-top:20px;
+}
+</style>
+
+</head>
+<body>
+
+<div class="container">
+
+<h1>สมัครสมาชิก</h1>
+
+<input id="name" placeholder="ชื่อ">
+
+<input id="email" type="email" placeholder="อีเมล">
+
+<input id="password" type="password" placeholder="รหัสผ่าน">
+
+<button onclick="registerUser()">
+สมัครสมาชิก
+</button>
+
+<div id="result"></div>
+
+</div>
+
+<script type="module">
+
+import { register } from "./js/api.js";
+
+window.registerUser = async () => {
+
+const data = {
+name:document.getElementById("name").value,
+email:document.getElementById("email").value,
+password:document.getElementById("password").value
+};
+
+const res = await register(data);
+
+document.getElementById("result").innerHTML =
+JSON.stringify(res);
+
+};
+
+</script>
+
+</body>
+</html>
