@@ -1,1 +1,109 @@
-<!doctype html><html lang="th"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>ระบบแอดมิน | LIVEHUB TH</title><link rel="stylesheet" href="/css/style.css"></head><body><header class="site-header"><a class="brand" href="/"><span class="brand-mark">▶</span><span>LIVEHUB TH</span></a><nav class="site-nav"><a href="/">หน้าแรก</a><a href="/events.html">LIVE / REPLAY</a></nav></header><main class="page-shell"><p class="eyebrow">LIVEHUB TH</p><h1 class="page-title">ระบบแอดมิน</h1><div class="notice-card"><h2>กำลังพัฒนา</h2><p>จัดการรายการ คำสั่งซื้อ และการอนุมัติ</p></div></main></body></html>
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LIVEHUB TH Admin</title>
+
+<style>
+body{
+    background:#080808;
+    color:white;
+    font-family:Arial,sans-serif;
+    max-width:700px;
+    margin:auto;
+    padding:30px;
+}
+h1{
+    color:#ff1493;
+}
+input,textarea{
+    width:100%;
+    padding:12px;
+    margin:10px 0;
+    background:#111;
+    color:white;
+    border:1px solid #333;
+    border-radius:8px;
+    box-sizing:border-box;
+}
+button{
+    width:100%;
+    padding:14px;
+    background:#ff1493;
+    color:white;
+    border:none;
+    border-radius:8px;
+    font-size:18px;
+    cursor:pointer;
+}
+#result{
+    margin-top:20px;
+}
+</style>
+
+</head>
+<body>
+
+<h1>เพิ่มคอนเสิร์ต</h1>
+
+<input id="title" placeholder="ชื่อคอนเสิร์ต">
+
+<textarea id="description" placeholder="รายละเอียด"></textarea>
+
+<input id="event_date" type="date">
+
+<input id="price" type="number" placeholder="ราคา">
+
+<input id="image" placeholder="URL รูปภาพ">
+
+<input id="live_url" placeholder="Live URL">
+
+<input id="replay_url" placeholder="Replay URL">
+
+<button onclick="saveConcert()">
+บันทึกคอนเสิร์ต
+</button>
+
+<div id="result"></div>
+
+<script>
+async function saveConcert(){
+
+const res = await fetch("/api/admin/concerts",{
+
+method:"POST",
+
+headers:{
+"Content-Type":"application/json"
+},
+
+body:JSON.stringify({
+
+title:title.value,
+
+description:description.value,
+
+event_date:event_date.value,
+
+price:price.value,
+
+image:image.value,
+
+live_url:live_url.value,
+
+replay_url:replay_url.value
+
+})
+
+});
+
+const json=await res.json();
+
+result.innerHTML=JSON.stringify(json);
+
+}
+</script>
+
+</body>
+</html>
