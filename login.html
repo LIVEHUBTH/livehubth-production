@@ -1,1 +1,105 @@
-<!doctype html><html lang="th"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>เข้าสู่ระบบ | LIVEHUB TH</title><link rel="stylesheet" href="/css/style.css"></head><body><header class="site-header"><a class="brand" href="/"><span class="brand-mark">▶</span><span>LIVEHUB TH</span></a><nav class="site-nav"><a href="/">หน้าแรก</a><a href="/events.html">LIVE / REPLAY</a></nav></header><main class="page-shell"><p class="eyebrow">LIVEHUB TH</p><h1 class="page-title">เข้าสู่ระบบ</h1><div class="notice-card"><h2>กำลังพัฒนา</h2><p>ระบบเข้าสู่ระบบจะเชื่อมต่อในชุดถัดไป</p></div></main></body></html>
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>เข้าสู่ระบบ | LIVEHUB TH</title>
+
+  <link rel="stylesheet" href="css/style.css">
+
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #090909;
+      color: #fff;
+      margin: 0;
+    }
+
+    .container {
+      max-width: 420px;
+      margin: 60px auto;
+      padding: 25px;
+    }
+
+    h1 {
+      color: #ff1493;
+    }
+
+    input {
+      width: 100%;
+      padding: 14px;
+      margin: 10px 0;
+      border-radius: 8px;
+      border: 1px solid #333;
+      background: #111;
+      color: #fff;
+      box-sizing: border-box;
+    }
+
+    button {
+      width: 100%;
+      padding: 14px;
+      border: 0;
+      border-radius: 8px;
+      background: #ff1493;
+      color: #fff;
+      font-size: 16px;
+      cursor: pointer;
+    }
+
+    #result {
+      margin-top: 20px;
+      line-height: 1.5;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <h1>เข้าสู่ระบบ</h1>
+
+    <input id="email" type="email" placeholder="อีเมล">
+    <input id="password" type="password" placeholder="รหัสผ่าน">
+
+    <button id="loginButton" type="button">เข้าสู่ระบบ</button>
+
+    <div id="result"></div>
+  </div>
+
+  <script type="module">
+    import { login } from "./js/api.js";
+
+    const emailInput = document.getElementById("email");
+    const passwordInput = document.getElementById("password");
+    const loginButton = document.getElementById("loginButton");
+    const result = document.getElementById("result");
+
+    loginButton.addEventListener("click", async () => {
+      result.textContent = "กำลังเข้าสู่ระบบ...";
+      loginButton.disabled = true;
+
+      try {
+        const response = await login({
+          email: emailInput.value.trim(),
+          password: passwordInput.value
+        });
+
+        result.textContent = response.message || "ไม่สามารถเข้าสู่ระบบได้";
+
+        if (response.success) {
+          sessionStorage.setItem("livehubUser", JSON.stringify(response.user));
+
+          setTimeout(() => {
+            window.location.href = "dashboard.html";
+          }, 700);
+        }
+      } catch (error) {
+        result.textContent = "เชื่อมต่อระบบไม่สำเร็จ กรุณาลองใหม่";
+        console.error("Login frontend error:", error);
+      } finally {
+        loginButton.disabled = false;
+      }
+    });
+  </script>
+</body>
+</html>
