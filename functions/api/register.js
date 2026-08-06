@@ -105,15 +105,15 @@ export async function onRequestPost(context) {
       },
       201
     );
-  } catch (error) {
-    console.error("Register error:", error);
+} catch (error) {
+  console.error("Register error:", error);
 
-    return json(
-      {
-        success: false,
-        message: "ระบบขัดข้อง กรุณาลองใหม่"
-      },
-      500
-    );
-  }
+  return json(
+    {
+      success: false,
+      message: "ระบบขัดข้อง กรุณาลองใหม่",
+      detail: String(error?.message || error)
+    },
+    500
+  );
 }
