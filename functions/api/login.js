@@ -127,16 +127,38 @@ export async function onRequestPost(context) {
       );
     }
 
-    return json({
-      success: true,
-      message: "เข้าสู่ระบบสำเร็จ",
-      user: {
-        id: user.id,
-        name: user.name,
-        email: user.email,
-        role: user.role
-      }
-    });
+    const sessionTokenBytes = crypto.getRandomValues(new Uint8Array(32));
+const sessionToken = base64Url(sessionTokenBytes);
+
+const expiresAt = new Date(
+  Date.now() + 7 * 24 * 60 * 60 * 1000
+).toISOString();
+
+await db
+  .prepare(
+    `INSERT INTO sessions (user_id, token, expires_at)
+     VALUES (?, ?, ?)`
+  )
+  .bind(user.id, sessionToken, expiresAt)
+  .run();
+
+return json(
+  {
+    success: true,
+    message: "เข้าสู่ระบบสำเร็จ",
+    user: {
+      id: user.id,
+      name: user.name,
+      email: user.email,
+      role: user.role
+    }
+  },
+  200,
+  {
+    "Set-Cookie":
+      `livehub_session=${sessionToken}; ` +
+      `Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=604800`
+  });
   } catch (error) {
     console.error("Login error:", error);
 
