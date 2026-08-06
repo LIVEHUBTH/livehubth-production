@@ -3,6 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#080808">
+
   <title>เลือกคอนเสิร์ต | LIVEHUB TH</title>
 
   <link rel="stylesheet" href="css/style.css">
@@ -16,29 +18,47 @@
       margin: 0;
       min-height: 100vh;
       font-family: Arial, sans-serif;
-      background: #080808;
+      background:
+        radial-gradient(
+          circle at 15% 10%,
+          rgba(255, 20, 147, 0.12),
+          transparent 28%
+        ),
+        #080808;
       color: #ffffff;
     }
 
     .header {
+      position: sticky;
+      top: 0;
+      z-index: 20;
+
       display: flex;
       align-items: center;
       justify-content: space-between;
+      gap: 20px;
+
       padding: 20px 28px;
+
       border-bottom: 1px solid #242424;
-      background: #050505;
+
+      background: rgba(5, 5, 5, 0.92);
+      backdrop-filter: blur(16px);
     }
 
-    .brand {
-      color: #ffffff;
-      text-decoration: none;
-      font-size: 22px;
-      font-weight: 700;
-    }
-
+    .brand,
     .account-link {
       color: #ffffff;
       text-decoration: none;
+      font-weight: 700;
+    }
+
+    .brand {
+      font-size: 22px;
+    }
+
+    .account-link:hover {
+      color: #ff1493;
     }
 
     .container {
@@ -49,48 +69,86 @@
 
     .eyebrow {
       margin: 0 0 10px;
+
       color: #ff1493;
+
       font-weight: 700;
       letter-spacing: 2px;
     }
 
     h1 {
       margin: 0 0 14px;
+
       font-size: clamp(38px, 8vw, 72px);
       line-height: 1;
     }
 
     .intro {
       margin: 0 0 36px;
+
       color: #bdbdc7;
+
       font-size: 18px;
+      line-height: 1.7;
     }
 
     .events-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(270px, 1fr));
+
+      grid-template-columns:
+        repeat(
+          auto-fit,
+          minmax(270px, 1fr)
+        );
+
       gap: 24px;
     }
 
     .event-card {
       overflow: hidden;
+
       border: 1px solid #7b174e;
       border-radius: 24px;
+
       background: #111116;
+
+      box-shadow:
+        0 20px 55px rgba(0, 0, 0, 0.35);
     }
 
     .event-cover {
       display: flex;
       align-items: end;
+
       min-height: 210px;
       padding: 24px;
+
       background:
-        radial-gradient(circle at top right, rgba(255, 20, 147, 0.35), transparent 42%),
-        linear-gradient(145deg, #21000f, #090909 65%);
+        radial-gradient(
+          circle at top right,
+          rgba(255, 20, 147, 0.35),
+          transparent 42%
+        ),
+        linear-gradient(
+          145deg,
+          #21000f,
+          #090909 65%
+        );
+
+      background-size: cover;
+      background-position: center;
     }
 
     .event-cover span {
+      display: inline-flex;
+
+      padding: 8px 12px;
+
+      border-radius: 999px;
+
+      background: rgba(0, 0, 0, 0.72);
       color: #ff1493;
+
       font-size: 14px;
       font-weight: 700;
       letter-spacing: 2px;
@@ -102,45 +160,67 @@
 
     .event-title {
       margin: 0 0 14px;
+
       font-size: 25px;
     }
 
     .event-description {
       min-height: 48px;
       margin: 0 0 18px;
+
       color: #bdbdc7;
+
       line-height: 1.6;
     }
 
     .event-meta {
       display: grid;
       gap: 9px;
+
       margin-bottom: 24px;
     }
 
     .price {
       color: #ff1493;
+
       font-size: 30px;
       font-weight: 700;
     }
 
     .buy-button {
       display: block;
+
       width: 100%;
       padding: 15px 18px;
-      border: 0;
+
       border-radius: 12px;
+
       background: #ff1493;
       color: #ffffff;
+
       font-size: 17px;
       font-weight: 700;
+
       text-align: center;
       text-decoration: none;
-      cursor: pointer;
     }
 
     .buy-button:hover {
       background: #e6007e;
+    }
+
+    .status-message {
+      grid-column: 1 / -1;
+
+      padding: 22px;
+
+      border: 1px solid #33333b;
+      border-radius: 18px;
+
+      background: #111116;
+      color: #d8d8df;
+
+      text-align: center;
     }
 
     @media (max-width: 600px) {
@@ -157,86 +237,325 @@
 </head>
 
 <body>
+
   <header class="header">
-    <a class="brand" href="index.html">LIVEHUB TH</a>
-    <a class="account-link" href="dashboard.html">บัญชีของฉัน</a>
+
+    <a
+      class="brand"
+      href="index.html"
+    >
+      LIVEHUB TH
+    </a>
+
+    <a
+      class="account-link"
+      href="dashboard.html"
+    >
+      บัญชีของฉัน
+    </a>
+
   </header>
 
   <main class="container">
-    <p class="eyebrow">LIVE / REPLAY</p>
-    <h1>เลือกคอนเสิร์ต</h1>
-    <p class="intro">เลือกงานที่ต้องการรับชม แล้วดำเนินการซื้อสิทธิ์เข้าชม</p>
 
-    <section class="events-grid">
-      <article class="event-card">
-        <div class="event-cover">
-          <span>LIVE CONCERT</span>
-        </div>
+    <p class="eyebrow">
+      LIVE / REPLAY
+    </p>
 
-        <div class="event-body">
-          <h2 class="event-title">BODYSLAM LIVE 2026</h2>
-          <p class="event-description">รับชมการถ่ายทอดสดและดูย้อนหลังตามระยะเวลาที่กำหนด</p>
+    <h1>
+      เลือกคอนเสิร์ต
+    </h1>
 
-          <div class="event-meta">
-            <div>วันที่ 15 กันยายน 2026</div>
-            <div class="price">฿399</div>
-          </div>
+    <p class="intro">
+      เลือกงานที่ต้องการรับชม
+      แล้วดำเนินการซื้อสิทธิ์เข้าชม
+    </p>
 
-          <a
-            class="buy-button"
-            href="payment.html?event=1&title=BODYSLAM%20LIVE%202026&price=399"
-          >
-            ซื้อบัตร
-          </a>
-        </div>
-      </article>
+    <section
+      class="events-grid"
+      id="eventsGrid"
+    >
 
-      <article class="event-card">
-        <div class="event-cover">
-          <span>LIVE CONCERT</span>
-        </div>
+      <p class="status-message">
+        กำลังโหลดรายการคอนเสิร์ต...
+      </p>
 
-        <div class="event-body">
-          <h2 class="event-title">BIG ASS LIVE</h2>
-          <p class="event-description">รับชมสดแบบเต็มโชว์ พร้อมสิทธิ์เข้าชม Replay</p>
-
-          <div class="event-meta">
-            <div>วันที่ 30 กันยายน 2026</div>
-            <div class="price">฿299</div>
-          </div>
-
-          <a
-            class="buy-button"
-            href="payment.html?event=2&title=BIG%20ASS%20LIVE&price=299"
-          >
-            ซื้อบัตร
-          </a>
-        </div>
-      </article>
-
-      <article class="event-card">
-        <div class="event-cover">
-          <span>LIVE CONCERT</span>
-        </div>
-
-        <div class="event-body">
-          <h2 class="event-title">COCKTAIL LIVE</h2>
-          <p class="event-description">คอนเสิร์ตออนไลน์พร้อมระบบตรวจสอบสิทธิ์สมาชิก</p>
-
-          <div class="event-meta">
-            <div>วันที่ 10 ตุลาคม 2026</div>
-            <div class="price">฿499</div>
-          </div>
-
-          <a
-            class="buy-button"
-            href="payment.html?event=3&title=COCKTAIL%20LIVE&price=499"
-          >
-            ซื้อบัตร
-          </a>
-        </div>
-      </article>
     </section>
+
   </main>
+
+  <script>
+
+    const eventsGrid =
+      document.getElementById("eventsGrid");
+
+
+    function escapeHtml(value) {
+
+      return String(value ?? "")
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+
+    }
+
+
+    function safeImageUrl(value) {
+
+      try {
+
+        const url = new URL(
+          String(value || ""),
+          window.location.origin
+        );
+
+        if (
+          url.protocol !== "https:" &&
+          url.protocol !== "http:"
+        ) {
+          return "";
+        }
+
+        return url.href;
+
+      } catch {
+
+        return "";
+
+      }
+
+    }
+
+
+    function formatDate(value) {
+
+      if (!value) {
+        return "ยังไม่ระบุวันที่";
+      }
+
+      const date =
+        new Date(`${value}T00:00:00`);
+
+      if (
+        Number.isNaN(date.getTime())
+      ) {
+        return escapeHtml(value);
+      }
+
+      return new Intl.DateTimeFormat(
+        "th-TH",
+        {
+          day: "numeric",
+          month: "long",
+          year: "numeric"
+        }
+      ).format(date);
+
+    }
+
+
+    async function loadConcerts() {
+
+      try {
+
+        const response =
+          await fetch(
+            "/api/concerts",
+            {
+              headers: {
+                "Accept":
+                  "application/json"
+              },
+
+              credentials:
+                "include"
+            }
+          );
+
+
+        const data =
+          await response.json();
+
+
+        if (
+          !response.ok ||
+          !data.success
+        ) {
+
+          throw new Error(
+            data.message ||
+            "โหลดข้อมูลไม่สำเร็จ"
+          );
+
+        }
+
+
+        if (
+          !Array.isArray(
+            data.concerts
+          ) ||
+          data.concerts.length === 0
+        ) {
+
+          eventsGrid.innerHTML = `
+            <p class="status-message">
+              ยังไม่มีคอนเสิร์ต
+              ที่เปิดขายในขณะนี้
+            </p>
+          `;
+
+          return;
+
+        }
+
+
+        eventsGrid.innerHTML =
+          data.concerts
+            .map((concert) => {
+
+              const id =
+                Number(concert.id);
+
+
+              const title =
+                escapeHtml(
+                  concert.title
+                );
+
+
+              const description =
+                escapeHtml(
+                  concert.description ||
+                  "รับชมการถ่ายทอดสดและดูย้อนหลัง"
+                );
+
+
+              const image =
+                safeImageUrl(
+                  concert.image
+                );
+
+
+              const price =
+                Number(
+                  concert.price || 0
+                );
+
+
+              const coverStyle =
+                image
+                  ? `
+                    style="
+                      background-image:
+                        linear-gradient(
+                          180deg,
+                          rgba(0,0,0,.08),
+                          rgba(0,0,0,.88)
+                        ),
+                        url('${image}');
+                    "
+                  `
+                  : "";
+
+
+              return `
+
+                <article class="event-card">
+
+                  <div
+                    class="event-cover"
+                    ${coverStyle}
+                  >
+
+                    <span>
+                      LIVE CONCERT
+                    </span>
+
+                  </div>
+
+
+                  <div class="event-body">
+
+                    <h2 class="event-title">
+                      ${title}
+                    </h2>
+
+
+                    <p class="event-description">
+                      ${description}
+                    </p>
+
+
+                    <div class="event-meta">
+
+                      <div>
+                        วันที่
+                        ${formatDate(
+                          concert.event_date
+                        )}
+                      </div>
+
+
+                      <div class="price">
+
+                        ฿${price.toLocaleString(
+                          "th-TH"
+                        )}
+
+                      </div>
+
+                    </div>
+
+
+                    <a
+                      class="buy-button"
+                      href="
+                        payment.html?concert_id=
+                        ${encodeURIComponent(id)}
+                      "
+                    >
+                      ซื้อบัตร
+                    </a>
+
+                  </div>
+
+                </article>
+
+              `;
+
+            })
+            .join("");
+
+
+      } catch (error) {
+
+        console.error(
+          "Load concerts error:",
+          error
+        );
+
+
+        eventsGrid.innerHTML = `
+
+          <p class="status-message">
+
+            โหลดรายการคอนเสิร์ต
+            ไม่สำเร็จ กรุณาลองใหม่
+
+          </p>
+
+        `;
+
+      }
+
+    }
+
+
+    loadConcerts();
+
+  </script>
+
 </body>
 </html>
