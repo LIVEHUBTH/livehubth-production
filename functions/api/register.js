@@ -33,7 +33,7 @@ async function hashPassword(password) {
       {
         name: "PBKDF2",
         salt,
-        iterations: 120000,
+        iterations: 100000,
         hash: "SHA-256"
       },
       key,
@@ -41,7 +41,7 @@ async function hashPassword(password) {
     )
   );
 
-  return `pbkdf2$120000$${base64Url(salt)}$${base64Url(hash)}`;
+  return `pbkdf2$100000$${base64Url(salt)}$${base64Url(hash)}`;
 }
 
 export async function onRequestPost(context) {
