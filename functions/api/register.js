@@ -111,8 +111,7 @@ export async function onRequestPost(context) {
   return json(
     {
       success: false,
-      message: "ระบบขัดข้อง กรุณาลองใหม่",
-      detail: String(error?.message || error)
+      message: String(error?.message || error)
     },
     500
   );
