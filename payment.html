@@ -1,1 +1,674 @@
-<!doctype html><html lang="th"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>ชำระเงิน | LIVEHUB TH</title><link rel="stylesheet" href="/css/style.css"></head><body><header class="site-header"><a class="brand" href="/"><span class="brand-mark">▶</span><span>LIVEHUB TH</span></a><nav class="site-nav"><a href="/">หน้าแรก</a><a href="/events.html">LIVE / REPLAY</a></nav></header><main class="page-shell"><p class="eyebrow">LIVEHUB TH</p><h1 class="page-title">ชำระเงิน</h1><div class="notice-card"><h2>กำลังพัฒนา</h2><p>หน้า QR และอัปโหลดสลิปจะเพิ่มในเฟสการชำระเงิน</p></div></main></body></html>
+<!DOCTYPE html>
+<html lang="th">
+<head>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>ชำระเงิน | LIVEHUB TH</title>
+
+<style>
+
+*{
+box-sizing:border-box;
+}
+
+body{
+
+margin:0;
+
+background:#080808;
+
+color:white;
+
+font-family:Arial,sans-serif;
+
+}
+
+header{
+
+display:flex;
+
+justify-content:space-between;
+
+align-items:center;
+
+padding:20px 30px;
+
+border-bottom:1px solid #242424;
+
+background:#050505;
+
+}
+
+header a{
+
+color:white;
+
+text-decoration:none;
+
+font-weight:bold;
+
+}
+
+.container{
+
+max-width:900px;
+
+margin:auto;
+
+padding:40px 20px;
+
+}
+
+.card{
+
+background:#111116;
+
+border:1px solid #7b174e;
+
+border-radius:24px;
+
+overflow:hidden;
+
+}
+
+.cover{
+
+height:300px;
+
+background:#181818;
+
+background-size:cover;
+
+background-position:center;
+
+}
+
+.content{
+
+padding:30px;
+
+}
+
+.title{
+
+font-size:42px;
+
+font-weight:bold;
+
+margin-bottom:15px;
+
+}
+
+.description{
+
+color:#bbbbbb;
+
+line-height:1.7;
+
+margin-bottom:20px;
+
+}
+
+.meta{
+
+display:grid;
+
+gap:10px;
+
+margin-bottom:30px;
+
+}
+
+.price{
+
+font-size:48px;
+
+color:#ff1493;
+
+font-weight:bold;
+
+}
+
+.qr{
+
+margin-top:40px;
+
+text-align:center;
+
+}
+
+.qr img{
+
+width:280px;
+
+max-width:100%;
+
+border-radius:16px;
+
+background:white;
+
+padding:15px;
+
+}
+
+.upload{
+
+margin-top:40px;
+
+}
+
+input[type=file]{
+
+width:100%;
+
+padding:14px;
+
+background:#181818;
+
+color:white;
+
+border:1px solid #333;
+
+border-radius:10px;
+
+}
+
+button{
+
+margin-top:25px;
+
+width:100%;
+
+padding:18px;
+
+background:#ff1493;
+
+color:white;
+
+font-size:20px;
+
+font-weight:bold;
+
+border:0;
+
+border-radius:12px;
+
+cursor:pointer;
+
+}
+
+button:hover{
+
+background:#e6007e;
+
+}
+
+.message{
+
+margin-top:25px;
+
+font-size:18px;
+
+}
+
+.loading{
+
+text-align:center;
+
+font-size:20px;
+
+padding:80px;
+
+}
+
+</style>
+
+</head>
+
+<body>
+
+<header>
+
+<a href="index.html">
+
+LIVEHUB TH
+
+</a>
+
+<a href="dashboard.html">
+
+บัญชีของฉัน
+
+</a>
+
+</header>
+
+<div class="container">
+
+<div id="paymentArea">
+
+<div class="loading">
+
+กำลังโหลดข้อมูล...
+
+</div>
+
+</div>
+
+</div>
+<script>
+  const paymentArea = document.getElementById("paymentArea");
+
+  let selectedConcert = null;
+  let currentOrderId = null;
+
+  function escapeHtml(value) {
+    return String(value ?? "")
+      .replaceAll("&", "&amp;")
+      .replaceAll("<", "&lt;")
+      .replaceAll(">", "&gt;")
+      .replaceAll('"', "&quot;")
+      .replaceAll("'", "&#039;");
+  }
+
+  function safeImageUrl(value) {
+    try {
+      const url = new URL(
+        String(value || ""),
+        window.location.origin
+      );
+
+      if (
+        url.protocol !== "https:" &&
+        url.protocol !== "http:"
+      ) {
+        return "";
+      }
+
+      return url.href;
+    } catch {
+      return "";
+    }
+  }
+
+  function formatDate(value) {
+    if (!value) {
+      return "ยังไม่ระบุวันที่";
+    }
+
+    const date = new Date(`${value}T00:00:00`);
+
+    if (Number.isNaN(date.getTime())) {
+      return escapeHtml(value);
+    }
+
+    return new Intl.DateTimeFormat("th-TH", {
+      day: "numeric",
+      month: "long",
+      year: "numeric"
+    }).format(date);
+  }
+
+  function showError(message) {
+    paymentArea.innerHTML = `
+      <div class="card">
+        <div class="content">
+          <h1 class="title">ไม่สามารถดำเนินการได้</h1>
+
+          <p class="description">
+            ${escapeHtml(message)}
+          </p>
+
+          <a
+            href="tickets.html"
+            style="
+              display:block;
+              padding:16px;
+              border-radius:12px;
+              background:#ff1493;
+              color:#ffffff;
+              text-align:center;
+              text-decoration:none;
+              font-weight:bold;
+            "
+          >
+            กลับไปเลือกคอนเสิร์ต
+          </a>
+        </div>
+      </div>
+    `;
+  }
+
+  async function getCurrentUser() {
+    const response = await fetch("/api/me", {
+      headers: {
+        "Accept": "application/json"
+      },
+      credentials: "include"
+    });
+
+    const data = await response.json();
+
+    if (!response.ok || !data.success) {
+      window.location.href =
+        "login.html?redirect=" +
+        encodeURIComponent(window.location.href);
+
+      throw new Error("กรุณาเข้าสู่ระบบ");
+    }
+
+    return data.user;
+  }
+
+  async function getConcert(concertId) {
+    const response = await fetch("/api/concerts", {
+      headers: {
+        "Accept": "application/json"
+      },
+      credentials: "include"
+    });
+
+    const data = await response.json();
+
+    if (!response.ok || !data.success) {
+      throw new Error(
+        data.message || "โหลดข้อมูลคอนเสิร์ตไม่สำเร็จ"
+      );
+    }
+
+    const concert = data.concerts.find(
+      (item) => Number(item.id) === Number(concertId)
+    );
+
+    if (!concert) {
+      throw new Error("ไม่พบคอนเสิร์ตที่เลือก");
+    }
+
+    return concert;
+  }
+
+  async function createOrder() {
+    const orderButton =
+      document.getElementById("createOrderButton");
+
+    const orderMessage =
+      document.getElementById("orderMessage");
+
+    if (!selectedConcert) {
+      return;
+    }
+
+    orderButton.disabled = true;
+    orderButton.textContent = "กำลังสร้างคำสั่งซื้อ...";
+
+    orderMessage.textContent = "";
+
+    try {
+      const user = await getCurrentUser();
+
+      const response = await fetch("/api/orders", {
+        method: "POST",
+
+        headers: {
+          "Content-Type": "application/json",
+          "Accept": "application/json"
+        },
+
+        credentials: "include",
+
+        body: JSON.stringify({
+          concert_id: Number(selectedConcert.id),
+
+          /*
+            ใส่ชั่วคราวเพื่อให้ทำงานกับ orders.js
+            เวอร์ชันที่สร้างไว้ก่อนหน้านี้
+          */
+          user_id: Number(user.id)
+        })
+      });
+
+      const data = await response.json();
+
+      if (!response.ok || !data.success) {
+        throw new Error(
+          data.message || "สร้างคำสั่งซื้อไม่สำเร็จ"
+        );
+      }
+
+      currentOrderId = Number(data.orderId);
+
+      sessionStorage.setItem(
+        `livehub_order_${selectedConcert.id}`,
+        String(currentOrderId)
+      );
+
+      orderMessage.innerHTML = `
+        <div
+          style="
+            margin-top:20px;
+            padding:18px;
+            border:1px solid #315f42;
+            border-radius:12px;
+            background:#102117;
+            color:#c9f5d6;
+          "
+        >
+          สร้างคำสั่งซื้อสำเร็จ<br>
+          หมายเลขคำสั่งซื้อ:
+          <strong>#${currentOrderId}</strong>
+        </div>
+      `;
+
+      orderButton.textContent = "สร้างคำสั่งซื้อสำเร็จ";
+
+      showPaymentSection(
+        currentOrderId,
+        Number(data.amount || selectedConcert.price)
+      );
+    } catch (error) {
+      console.error("Create order error:", error);
+
+      orderMessage.innerHTML = `
+        <div
+          style="
+            margin-top:20px;
+            padding:18px;
+            border:1px solid #702f38;
+            border-radius:12px;
+            background:#241014;
+            color:#ffbec6;
+          "
+        >
+          ${escapeHtml(error.message)}
+        </div>
+      `;
+
+      orderButton.disabled = false;
+      orderButton.textContent = "สร้างคำสั่งซื้อ";
+    }
+  }
+
+  function showPaymentSection(orderId, amount) {
+    const paymentSection =
+      document.getElementById("paymentSection");
+
+    paymentSection.hidden = false;
+
+    document.getElementById("orderNumber").textContent =
+      `#${orderId}`;
+
+    document.getElementById("paymentAmount").textContent =
+      `฿${Number(amount).toLocaleString("th-TH")}`;
+
+    paymentSection.scrollIntoView({
+      behavior: "smooth",
+      block: "start"
+    });
+  }
+
+  function renderConcert(concert) {
+    const title = escapeHtml(concert.title);
+
+    const description = escapeHtml(
+      concert.description ||
+      "รับชมการถ่ายทอดสดและดูย้อนหลัง"
+    );
+
+    const image = safeImageUrl(concert.image);
+
+    const price = Number(concert.price || 0);
+
+    const coverStyle = image
+      ? `
+        background-image:
+          linear-gradient(
+            180deg,
+            rgba(0,0,0,.08),
+            rgba(0,0,0,.88)
+          ),
+          url('${image}');
+      `
+      : "";
+
+    paymentArea.innerHTML = `
+      <div class="card">
+
+        <div
+          class="cover"
+          style="${coverStyle}"
+        ></div>
+
+        <div class="content">
+
+          <div class="title">
+            ${title}
+          </div>
+
+          <div class="description">
+            ${description}
+          </div>
+
+          <div class="meta">
+
+            <div>
+              วันที่
+              ${formatDate(concert.event_date)}
+            </div>
+
+            <div class="price">
+              ฿${price.toLocaleString("th-TH")}
+            </div>
+
+          </div>
+
+          <button
+            type="button"
+            id="createOrderButton"
+          >
+            สร้างคำสั่งซื้อ
+          </button>
+
+          <div
+            id="orderMessage"
+            class="message"
+          ></div>
+
+          <section
+            id="paymentSection"
+            class="qr"
+            hidden
+          >
+
+            <h2>
+              ชำระเงิน
+            </h2>
+
+            <p>
+              หมายเลขคำสั่งซื้อ:
+              <strong id="orderNumber"></strong>
+            </p>
+
+            <p>
+              ยอดที่ต้องชำระ:
+              <strong id="paymentAmount"></strong>
+            </p>
+
+            <div
+              id="qrArea"
+              style="
+                margin-top:24px;
+                padding:25px;
+                border-radius:18px;
+                background:#ffffff;
+                color:#111111;
+              "
+            >
+              QR PromptPay จะเพิ่มในขั้นตอนถัดไป
+            </div>
+
+          </section>
+
+        </div>
+
+      </div>
+    `;
+
+    document
+      .getElementById("createOrderButton")
+      .addEventListener("click", createOrder);
+
+    const savedOrderId = sessionStorage.getItem(
+      `livehub_order_${concert.id}`
+    );
+
+    if (savedOrderId) {
+      currentOrderId = Number(savedOrderId);
+
+      showPaymentSection(
+        currentOrderId,
+        price
+      );
+
+      const orderButton =
+        document.getElementById("createOrderButton");
+
+      orderButton.disabled = true;
+      orderButton.textContent =
+        "มีคำสั่งซื้อนี้แล้ว";
+    }
+  }
+
+  async function initializePaymentPage() {
+    try {
+      await getCurrentUser();
+
+      const params =
+        new URLSearchParams(window.location.search);
+
+      const concertId =
+        Number(params.get("concert_id"));
+
+      if (!Number.isInteger(concertId) || concertId < 1) {
+        throw new Error(
+          "ไม่พบหมายเลขคอนเสิร์ตใน URL"
+        );
+      }
+
+      selectedConcert =
+        await getConcert(concertId);
+
+      renderConcert(selectedConcert);
+    } catch (error) {
+      console.error(
+        "Initialize payment error:",
+        error
+      );
+
+      showError(error.message);
+    }
+  }
+
+  initializePaymentPage();
+</script>
