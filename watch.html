@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  >
+
+  <title>รับชมคอนเสิร์ต | LIVEHUB TH</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background:
+        radial-gradient(
+          circle at top,
+          #351025 0,
+          #10050c 35%,
+          #050505 75%
+        );
+      color: #ffffff;
+      font-family: Arial, sans-serif;
+    }
+
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 20px 28px;
+      border-bottom: 1px solid #3b102b;
+      background: rgba(5, 5, 5, 0.95);
+    }
+
+    header a {
+      color: #ffffff;
+      text-decoration: none;
+      font-weight: bold;
+    }
+
+    .brand {
+      color: #ff1493;
+      font-size: 22px;
+    }
+
+    .container {
+      width: min(1100px, calc(100% - 24px));
+      margin: auto;
+      padding: 35px 0 70px;
+    }
+
+    .player-card {
+      overflow: hidden;
+      border: 1px solid #7d1954;
+      border-radius: 24px;
+      background: #111116;
+      box-shadow:
+        0 20px 60px rgba(255, 20, 147, 0.12);
+    }
+
+    .video-wrapper {
+      position: relative;
+      width: 100%;
+      aspect-ratio: 16 / 9;
+      background: #000000;
+    }
+
+    video {
+      display: block;
+      width: 100%;
+      height: 100%;
+      background: #000000;
+    }
+
+    .content {
+      padding: 26px;
+    }
+
+    .badge {
+      display: inline-block;
+      margin-bottom: 14px;
+      padding: 7px 12px;
+      border: 1px solid #26894c;
+      border-radius: 999px;
+      background: #102819;
+      color: #aaf3c0;
+      font-size: 14px;
+      font-weight: bold;
+    }
+
+    h1 {
+      margin: 0 0 12px;
+      color: #ff4eaa;
+      font-size: clamp(28px, 6vw, 46px);
+    }
+
+    .description {
+      color: #cccccc;
+      line-height: 1.7;
+      white-space: pre-line;
+    }
+
+    .date {
+      margin-top: 18px;
+      color: #bbbbbb;
+    }
+
+    .message {
+      padding: 40px 20px;
+      border: 1px solid #432039;
+      border-radius: 20px;
+      background: #111116;
+      color: #cccccc;
+      text-align: center;
+      line-height: 1.7;
+    }
+
+    .back-button {
+      display: inline-block;
+      margin-top: 20px;
+      padding: 13px 18px;
+      border: 1px solid #ff1493;
+      border-radius: 12px;
+      color: #ff69b4;
+      text-decoration: none;
+      font-weight: bold;
+    }
+
+    @media (max-width: 600px) {
+      header {
+        padding: 18px;
+      }
+
+      .container {
+        padding-top: 22px;
+      }
+
+      .content {
+        padding: 20px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <header>
+    <a
+      href="index.html"
+      class="brand"
+    >
+      LIVEHUB TH
+    </a>
+
+    <a href="my-concerts.html">
+      คอนเสิร์ตของฉัน
+    </a>
+  </header>
+
+  <main class="container">
+    <div id="watchArea">
+      <div class="message">
+        กำลังตรวจสอบสิทธิ์เข้าชม...
+      </div>
+    </div>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+
+  <script>
+    const watchArea =
+      document.getElementById("watchArea");
+
+    function escapeHtml(value) {
+      return String(value ?? "")
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+    }
+
+    function formatDate(value) {
+      if (!value) {
+        return "รอประกาศวันและเวลา";
+      }
+
+      const date = new Date(value);
+
+      if (Number.isNaN(date.getTime())) {
+        return escapeHtml(value);
+      }
+
+      return new Intl.DateTimeFormat(
+        "th-TH",
+        {
+          dateStyle: "long",
+          timeStyle: "short",
+          timeZone: "Asia/Bangkok"
+        }
+      ).format(date);
+    }
+
+    function showError(message) {
+      watchArea.innerHTML = `
+        <div class="message">
+          ${escapeHtml(message)}
+
+          <br>
+
+          <a
+            class="back-button"
+            href="my-concerts.html"
+          >
+            กลับไปคอนเสิร์ตของฉัน
+          </a>
+        </div>
+      `;
+    }
+
+    function renderPlayer(concert) {
+      watchArea.innerHTML = `
+        <article class="player-card">
+
+          <div class="video-wrapper">
+            <video
+              id="concertPlayer"
+              controls
+              playsinline
+              preload="metadata"
+              poster="${escapeHtml(
+                concert.cover_image || ""
+              )}"
+            ></video>
+          </div>
+
+          <div class="content">
+
+            <div class="badge">
+              ✓ ตรวจสอบสิทธิ์แล้ว
+            </div>
+
+            <h1>
+              ${escapeHtml(concert.title)}
+            </h1>
+
+            <div class="description">
+              ${escapeHtml(
+                concert.description || ""
+              )}
+            </div>
+
+            <div class="date">
+              ${formatDate(
+                concert.event_date
+              )}
+            </div>
+
+          </div>
+
+        </article>
+      `;
+
+      const video =
+        document.getElementById("concertPlayer");
+
+      const streamUrl =
+        String(concert.stream_url || "");
+
+      if (
+        video.canPlayType(
+          "application/vnd.apple.mpegurl"
+        )
+      ) {
+        video.src = streamUrl;
+        return;
+      }
+
+      if (window.Hls && Hls.isSupported()) {
+        const hls = new Hls();
+
+        hls.loadSource(streamUrl);
+        hls.attachMedia(video);
+
+        hls.on(
+          Hls.Events.ERROR,
+          function (_, data) {
+            console.error(
+              "HLS player error:",
+              data
+            );
+          }
+        );
+
+        return;
+      }
+
+      showError(
+        "อุปกรณ์นี้ไม่รองรับการเล่นสตรีม"
+      );
+    }
+
+    async function initializeWatchPage() {
+      try {
+        const params =
+          new URLSearchParams(
+            window.location.search
+          );
+
+        const eventId =
+          Number(params.get("event_id"));
+
+        if (
+          !Number.isInteger(eventId) ||
+          eventId < 1
+        ) {
+          throw new Error(
+            "ไม่พบหมายเลขคอนเสิร์ต"
+          );
+        }
+
+        const response = await fetch(
+          `/api/watch?event_id=${encodeURIComponent(
+            eventId
+          )}`,
+          {
+            headers: {
+              "Accept": "application/json"
+            },
+
+            credentials: "include"
+          }
+        );
+
+        const data = await response.json();
+
+        if (response.status === 401) {
+          window.location.href =
+            "login.html?redirect=" +
+            encodeURIComponent(
+              window.location.href
+            );
+
+          return;
+        }
+
+        if (!response.ok || !data.success) {
+          throw new Error(
+            data.message ||
+            "ไม่สามารถเข้าชมคอนเสิร์ตได้"
+          );
+        }
+
+        renderPlayer(data.concert);
+
+      } catch (error) {
+        console.error(
+          "Initialize watch page error:",
+          error
+        );
+
+        showError(error.message);
+      }
+    }
+
+    initializeWatchPage();
+  </script>
+
+</body>
+</html>
