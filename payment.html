@@ -622,7 +622,81 @@ LIVEHUB TH
               >
                 โปรดตรวจสอบชื่อบัญชีและยอดเงินก่อนยืนยัน
               </p>
-            </div>
+            <div
+  class="upload"
+  style="
+    margin-top:28px;
+    padding-top:24px;
+    border-top:1px solid #dddddd;
+    text-align:left;
+  "
+>
+  <label
+    for="slipFile"
+    style="
+      display:block;
+      margin-bottom:10px;
+      color:#111111;
+      font-size:17px;
+      font-weight:bold;
+    "
+  >
+    แนบสลิปการโอนเงิน
+  </label>
+
+  <input
+    type="file"
+    id="slipFile"
+    accept="image/jpeg,image/png,image/webp"
+  >
+
+  <div
+    id="slipPreviewArea"
+    style="
+      display:none;
+      margin-top:18px;
+      text-align:center;
+    "
+  >
+    <img
+      id="slipPreview"
+      alt="ตัวอย่างสลิป"
+      style="
+        display:block;
+        width:100%;
+        max-width:320px;
+        max-height:420px;
+        object-fit:contain;
+        margin:0 auto;
+        border:1px solid #dddddd;
+        border-radius:12px;
+        background:#ffffff;
+        padding:8px;
+      "
+    >
+  </div>
+
+  <button
+    type="button"
+    id="uploadSlipButton"
+    disabled
+    style="
+      margin-top:18px;
+    "
+  >
+    ส่งสลิปการโอน
+  </button>
+
+  <div
+    id="slipMessage"
+    class="message"
+    style="
+      color:#111111;
+      text-align:center;
+    "
+  ></div>
+</div>
+</div>
           </section>
         </div>
       </div>
@@ -631,7 +705,56 @@ LIVEHUB TH
     document
       .getElementById("createOrderButton")
       .addEventListener("click", createOrder);
+const slipFileInput =
+  document.getElementById("slipFile");
 
+const slipPreviewArea =
+  document.getElementById("slipPreviewArea");
+
+const slipPreview =
+  document.getElementById("slipPreview");
+
+const uploadSlipButton =
+  document.getElementById("uploadSlipButton");
+
+slipFileInput.addEventListener("change", () => {
+  const file = slipFileInput.files[0];
+
+  if (!file) {
+    slipPreviewArea.style.display = "none";
+    slipPreview.removeAttribute("src");
+    uploadSlipButton.disabled = true;
+    return;
+  }
+
+  const allowedTypes = [
+    "image/jpeg",
+    "image/png",
+    "image/webp"
+  ];
+
+  if (!allowedTypes.includes(file.type)) {
+    alert("กรุณาเลือกไฟล์ JPG, PNG หรือ WEBP");
+
+    slipFileInput.value = "";
+    slipPreviewArea.style.display = "none";
+    uploadSlipButton.disabled = true;
+    return;
+  }
+
+  if (file.size > 5 * 1024 * 1024) {
+    alert("ไฟล์สลิปต้องมีขนาดไม่เกิน 5 MB");
+
+    slipFileInput.value = "";
+    slipPreviewArea.style.display = "none";
+    uploadSlipButton.disabled = true;
+    return;
+  }
+
+  slipPreview.src = URL.createObjectURL(file);
+  slipPreviewArea.style.display = "block";
+  uploadSlipButton.disabled = false;
+});
     const savedOrderId = sessionStorage.getItem(
       `livehub_order_${concert.id}`
     );
