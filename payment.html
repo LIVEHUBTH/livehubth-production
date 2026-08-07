@@ -758,7 +758,110 @@ slipFileInput.addEventListener("change", () => {
     const savedOrderId = sessionStorage.getItem(
       `livehub_order_${concert.id}`
     );
+uploadSlipButton.addEventListener("click", async () => {
+  const slipMessage =
+    document.getElementById("slipMessage");
 
+  const file = slipFileInput.files[0];
+
+  if (!currentOrderId) {
+    slipMessage.innerHTML = `
+      <div style="color:#b00020;">
+        กรุณาสร้างคำสั่งซื้อก่อนส่งสลิป
+      </div>
+    `;
+    return;
+  }
+
+  if (!file) {
+    slipMessage.innerHTML = `
+      <div style="color:#b00020;">
+        กรุณาเลือกไฟล์สลิป
+      </div>
+    `;
+    return;
+  }
+
+  uploadSlipButton.disabled = true;
+  uploadSlipButton.textContent = "กำลังส่งสลิป...";
+
+  slipMessage.innerHTML = `
+    <div style="color:#555555;">
+      กำลังอัปโหลด กรุณารอสักครู่
+    </div>
+  `;
+
+  try {
+    const formData = new FormData();
+
+    formData.append(
+      "order_id",
+      String(currentOrderId)
+    );
+
+    formData.append(
+      "slip",
+      file
+    );
+
+    const response = await fetch("/api/upload-slip", {
+      method: "POST",
+      credentials: "include",
+      body: formData
+    });
+
+    const data = await response.json();
+
+    if (!response.ok || !data.success) {
+      throw new Error(
+        data.message || "ส่งสลิปไม่สำเร็จ"
+      );
+    }
+
+    slipMessage.innerHTML = `
+      <div
+        style="
+          margin-top:18px;
+          padding:16px;
+          border:1px solid #315f42;
+          border-radius:12px;
+          background:#e9fff0;
+          color:#17652f;
+          font-weight:bold;
+        "
+      >
+        ${escapeHtml(data.message)}
+      </div>
+    `;
+
+    uploadSlipButton.textContent =
+      "ส่งสลิปเรียบร้อยแล้ว";
+
+    slipFileInput.disabled = true;
+    uploadSlipButton.disabled = true;
+  } catch (error) {
+    console.error("Upload slip error:", error);
+
+    slipMessage.innerHTML = `
+      <div
+        style="
+          margin-top:18px;
+          padding:16px;
+          border:1px solid #b44a55;
+          border-radius:12px;
+          background:#fff0f2;
+          color:#a00018;
+        "
+      >
+        ${escapeHtml(error.message)}
+      </div>
+    `;
+
+    uploadSlipButton.disabled = false;
+    uploadSlipButton.textContent =
+      "ส่งสลิปการโอน";
+  }
+});
     if (savedOrderId) {
       currentOrderId = Number(savedOrderId);
 
