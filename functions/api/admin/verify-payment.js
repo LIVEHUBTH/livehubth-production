@@ -29,9 +29,10 @@ async function requireAdmin(request, env) {
   const session = await env.DB
     .prepare(`
       SELECT
-        sessions.user_id,
+        users.id,
+        users.name,
         users.email,
-        users.is_admin
+        users.role
       FROM sessions
       JOIN users
         ON users.id = sessions.user_id
@@ -54,7 +55,7 @@ async function requireAdmin(request, env) {
     };
   }
 
-  if (Number(session.is_admin) !== 1) {
+  if (session.role !== "admin") {
     return {
       error: json(
         {
@@ -66,11 +67,8 @@ async function requireAdmin(request, env) {
     };
   }
 
-  return {
-    session
-  };
+  return { session };
 }
-
 
 export async function onRequestPost(context) {
   const { request, env } = context;
@@ -100,6 +98,7 @@ export async function onRequestPost(context) {
     }
 
     const orderId = Number(body.order_id);
+
     const action = String(
       body.action || ""
     ).trim();
@@ -167,15 +166,21 @@ export async function onRequestPost(context) {
     }
 
     if (order.payment_status !== "submitted") {
+      let message =
+        "รายการนี้ไม่ได้อยู่ในสถานะรอตรวจสอบ";
+
+      if (order.payment_status === "approved") {
+        message = "รายการนี้ได้รับการอนุมัติแล้ว";
+      }
+
+      if (order.payment_status === "rejected") {
+        message = "รายการนี้ถูกปฏิเสธแล้ว";
+      }
+
       return json(
         {
           success: false,
-          message:
-            order.payment_status === "approved"
-              ? "รายการนี้ได้รับการอนุมัติแล้ว"
-              : order.payment_status === "rejected"
-              ? "รายการนี้ถูกปฏิเสธแล้ว"
-              : "รายการนี้ยังไม่อยู่ในสถานะรอตรวจสอบ"
+          message
         },
         409
       );
@@ -212,7 +217,7 @@ export async function onRequestPost(context) {
         {
           success: false,
           message:
-            "สถานะรายการถูกเปลี่ยนไปแล้ว กรุณารีเฟรชหน้า"
+            "สถานะรายการถูกเปลี่ยนแล้ว กรุณารีเฟรชหน้า"
         },
         409
       );
@@ -229,7 +234,6 @@ export async function onRequestPost(context) {
       orderId,
       payment_status: newStatus
     });
-
   } catch (error) {
     console.error(
       "Verify payment error:",
@@ -239,8 +243,7 @@ export async function onRequestPost(context) {
     return json(
       {
         success: false,
-        message:
-          "ตรวจสอบการชำระเงินไม่สำเร็จ"
+        message: "ตรวจสอบการชำระเงินไม่สำเร็จ"
       },
       500
     );
