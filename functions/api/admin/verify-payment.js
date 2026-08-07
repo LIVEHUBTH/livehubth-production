@@ -170,11 +170,13 @@ export async function onRequestPost(context) {
         "รายการนี้ไม่ได้อยู่ในสถานะรอตรวจสอบ";
 
       if (order.payment_status === "approved") {
-        message = "รายการนี้ได้รับการอนุมัติแล้ว";
+        message =
+          "รายการนี้ได้รับการอนุมัติแล้ว";
       }
 
       if (order.payment_status === "rejected") {
-        message = "รายการนี้ถูกปฏิเสธแล้ว";
+        message =
+          "รายการนี้ถูกปฏิเสธแล้ว";
       }
 
       return json(
@@ -191,36 +193,95 @@ export async function onRequestPost(context) {
         ? "approved"
         : "rejected";
 
-    const result = await env.DB
-      .prepare(`
-        UPDATE orders
-        SET payment_status = ?
-        WHERE id = ?
-          AND payment_status = 'submitted'
-      `)
-      .bind(
-        newStatus,
-        orderId
-      )
-      .run();
+    if (action === "approve") {
+      const results = await env.DB.batch([
+        env.DB
+          .prepare(`
+            UPDATE orders
+            SET payment_status = 'approved'
+            WHERE id = ?
+              AND payment_status = 'submitted'
+          `)
+          .bind(orderId),
 
-    if (!result.success) {
-      throw new Error(
-        "ไม่สามารถอัปเดตสถานะการชำระเงินได้"
-      );
-    }
+        env.DB
+          .prepare(`
+            INSERT INTO entitlements (
+              user_id,
+              event_id,
+              order_id,
+              status
+            )
+            VALUES (?, ?, ?, 'active')
+            ON CONFLICT(user_id, event_id)
+            DO UPDATE SET
+              order_id = excluded.order_id,
+              status = 'active'
+          `)
+          .bind(
+            order.user_id,
+            order.event_id,
+            orderId
+          )
+      ]);
 
-    if (
-      Number(result.meta?.changes || 0) !== 1
-    ) {
-      return json(
-        {
-          success: false,
-          message:
-            "สถานะรายการถูกเปลี่ยนแล้ว กรุณารีเฟรชหน้า"
-        },
-        409
-      );
+      const orderUpdate = results[0];
+      const entitlementUpdate = results[1];
+
+      if (
+        !orderUpdate.success ||
+        !entitlementUpdate.success
+      ) {
+        throw new Error(
+          "ไม่สามารถอนุมัติและสร้างสิทธิ์เข้าชมได้"
+        );
+      }
+
+      if (
+        Number(
+          orderUpdate.meta?.changes || 0
+        ) !== 1
+      ) {
+        return json(
+          {
+            success: false,
+            message:
+              "สถานะรายการถูกเปลี่ยนแล้ว กรุณารีเฟรชหน้า"
+          },
+          409
+        );
+      }
+    } else {
+      const result = await env.DB
+        .prepare(`
+          UPDATE orders
+          SET payment_status = 'rejected'
+          WHERE id = ?
+            AND payment_status = 'submitted'
+        `)
+        .bind(orderId)
+        .run();
+
+      if (!result.success) {
+        throw new Error(
+          "ไม่สามารถปฏิเสธคำสั่งซื้อได้"
+        );
+      }
+
+      if (
+        Number(
+          result.meta?.changes || 0
+        ) !== 1
+      ) {
+        return json(
+          {
+            success: false,
+            message:
+              "สถานะรายการถูกเปลี่ยนแล้ว กรุณารีเฟรชหน้า"
+          },
+          409
+        );
+      }
     }
 
     return json({
@@ -228,7 +289,7 @@ export async function onRequestPost(context) {
 
       message:
         newStatus === "approved"
-          ? "อนุมัติการชำระเงินเรียบร้อยแล้ว"
+          ? "อนุมัติการชำระเงินและสร้างสิทธิ์เข้าชมเรียบร้อยแล้ว"
           : "ปฏิเสธการชำระเงินเรียบร้อยแล้ว",
 
       orderId,
@@ -243,7 +304,8 @@ export async function onRequestPost(context) {
     return json(
       {
         success: false,
-        message: "ตรวจสอบการชำระเงินไม่สำเร็จ"
+        message:
+          "ตรวจสอบการชำระเงินไม่สำเร็จ"
       },
       500
     );
