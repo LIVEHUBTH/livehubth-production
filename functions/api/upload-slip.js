@@ -154,33 +154,52 @@ export async function onRequestPost(context) {
     const objectKey =
       `slips/user-${session.user_id}/` +
       `order-${orderId}-${crypto.randomUUID()}.${extension}`;
-
+const uploadedAt = new Date().toISOString();
     await env.SLIPS.put(
+  objectKey,
+  await slipFile.arrayBuffer(),
+  {
+    httpMetadata: {
+      contentType: slipFile.type
+    },
+
+    customMetadata: {
+      orderId: String(orderId),
+      userId: String(session.user_id),
+      uploadedAt
+    }
+  }
+);
+
+try {
+  const updateResult = await env.DB
+    .prepare(`
+      UPDATE orders
+      SET
+        payment_status = 'submitted',
+        slip_key = ?,
+        slip_uploaded_at = ?
+      WHERE id = ?
+        AND user_id = ?
+    `)
+    .bind(
       objectKey,
-      await slipFile.arrayBuffer(),
-      {
-        httpMetadata: {
-          contentType: slipFile.type
-        },
+      uploadedAt,
+      orderId,
+      session.user_id
+    )
+    .run();
 
-        customMetadata: {
-          orderId: String(orderId),
-          userId: String(session.user_id),
-          uploadedAt: new Date().toISOString()
-        }
-      }
+  if (!updateResult.success) {
+    throw new Error(
+      "ไม่สามารถบันทึกข้อมูลสลิปลงคำสั่งซื้อได้"
     );
+  }
+} catch (databaseError) {
+  await env.SLIPS.delete(objectKey);
 
-    await env.DB
-      .prepare(`
-        UPDATE orders
-        SET payment_status = 'submitted'
-        WHERE id = ?
-          AND user_id = ?
-      `)
-      .bind(orderId, session.user_id)
-      .run();
-
+  throw databaseError;
+}
     return Response.json({
       success: true,
       message: "ส่งสลิปสำเร็จ รอตรวจสอบการชำระเงิน",
