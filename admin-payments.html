@@ -1,0 +1,544 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  >
+
+  <title>ตรวจสอบการชำระเงิน | LIVEHUB TH</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      background: #080808;
+      color: #ffffff;
+      font-family: Arial, sans-serif;
+    }
+
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 20px;
+      padding: 20px 30px;
+      border-bottom: 1px solid #2a1020;
+      background: #050505;
+    }
+
+    header a {
+      color: #ffffff;
+      text-decoration: none;
+      font-weight: bold;
+    }
+
+    .brand {
+      color: #ff1493;
+      font-size: 22px;
+      font-weight: bold;
+    }
+
+    .container {
+      width: min(1200px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 40px 0 80px;
+    }
+
+    .page-title {
+      margin: 0 0 10px;
+      font-size: clamp(32px, 6vw, 54px);
+    }
+
+    .subtitle {
+      margin: 0 0 32px;
+      color: #aaaaaa;
+      line-height: 1.7;
+    }
+
+    .toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-bottom: 24px;
+    }
+
+    .toolbar button {
+      width: auto;
+      margin: 0;
+      padding: 12px 18px;
+      border: 1px solid #5b183d;
+      border-radius: 999px;
+      background: #151018;
+      color: #ffffff;
+      cursor: pointer;
+    }
+
+    .toolbar button.active {
+      border-color: #ff1493;
+      background: #ff1493;
+    }
+
+    .status-message {
+      padding: 28px;
+      border: 1px solid #3a2331;
+      border-radius: 18px;
+      background: #111116;
+      color: #cccccc;
+      text-align: center;
+    }
+
+    .payments-grid {
+      display: grid;
+      grid-template-columns:
+        repeat(auto-fit, minmax(300px, 1fr));
+      gap: 22px;
+    }
+
+    .payment-card {
+      overflow: hidden;
+      border: 1px solid #681847;
+      border-radius: 22px;
+      background: #111116;
+    }
+
+    .slip-wrapper {
+      position: relative;
+      min-height: 360px;
+      background: #ffffff;
+    }
+
+    .slip-image {
+      display: block;
+      width: 100%;
+      height: 420px;
+      object-fit: contain;
+      background: #ffffff;
+    }
+
+    .slip-loading {
+      display: grid;
+      place-items: center;
+      min-height: 360px;
+      padding: 30px;
+      color: #222222;
+      text-align: center;
+    }
+
+    .card-content {
+      padding: 22px;
+    }
+
+    .order-title {
+      margin: 0 0 16px;
+      color: #ff1493;
+      font-size: 27px;
+    }
+
+    .details {
+      display: grid;
+      gap: 10px;
+      color: #dddddd;
+      line-height: 1.5;
+    }
+
+    .details strong {
+      color: #ffffff;
+    }
+
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      margin-top: 18px;
+      padding: 8px 13px;
+      border-radius: 999px;
+      font-weight: bold;
+    }
+
+    .status-submitted {
+      border: 1px solid #d28a13;
+      background: #302209;
+      color: #ffd27a;
+    }
+
+    .status-approved {
+      border: 1px solid #27884b;
+      background: #102819;
+      color: #aaf3c0;
+    }
+
+    .status-rejected {
+      border: 1px solid #a63847;
+      background: #2c1116;
+      color: #ffb8c0;
+    }
+
+    .open-slip {
+      display: block;
+      margin-top: 18px;
+      padding: 13px;
+      border: 1px solid #ff1493;
+      border-radius: 12px;
+      color: #ff69b4;
+      text-align: center;
+      text-decoration: none;
+      font-weight: bold;
+    }
+
+    .open-slip:hover {
+      background: #ff1493;
+      color: #ffffff;
+    }
+
+    @media (max-width: 600px) {
+      header {
+        padding: 18px;
+      }
+
+      .container {
+        width: min(100% - 20px, 1200px);
+        padding-top: 28px;
+      }
+
+      .slip-image {
+        height: 360px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <header>
+    <a class="brand" href="index.html">
+      LIVEHUB TH
+    </a>
+
+    <a href="dashboard.html">
+      บัญชีของฉัน
+    </a>
+  </header>
+
+  <main class="container">
+    <h1 class="page-title">
+      ตรวจสอบการชำระเงิน
+    </h1>
+
+    <p class="subtitle">
+      รายการสลิปที่ลูกค้าส่งเข้ามา
+      ข้อมูลหน้านี้เปิดได้เฉพาะบัญชีแอดมิน
+    </p>
+
+    <div class="toolbar">
+      <button
+        type="button"
+        class="filter-button active"
+        data-status="all"
+      >
+        ทั้งหมด
+      </button>
+
+      <button
+        type="button"
+        class="filter-button"
+        data-status="submitted"
+      >
+        รอตรวจสอบ
+      </button>
+
+      <button
+        type="button"
+        class="filter-button"
+        data-status="approved"
+      >
+        อนุมัติแล้ว
+      </button>
+
+      <button
+        type="button"
+        class="filter-button"
+        data-status="rejected"
+      >
+        ปฏิเสธแล้ว
+      </button>
+    </div>
+
+    <div id="paymentsArea">
+      <div class="status-message">
+        กำลังโหลดรายการชำระเงิน...
+      </div>
+    </div>
+  </main>
+
+  <script>
+    const paymentsArea =
+      document.getElementById("paymentsArea");
+
+    let allPayments = [];
+    let currentFilter = "all";
+
+    function escapeHtml(value) {
+      return String(value ?? "")
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+    }
+
+    function formatMoney(value) {
+      return Number(value || 0).toLocaleString(
+        "th-TH",
+        {
+          minimumFractionDigits: 0,
+          maximumFractionDigits: 2
+        }
+      );
+    }
+
+    function formatDateTime(value) {
+      if (!value) {
+        return "ไม่ระบุ";
+      }
+
+      const date = new Date(value);
+
+      if (Number.isNaN(date.getTime())) {
+        return escapeHtml(value);
+      }
+
+      return new Intl.DateTimeFormat("th-TH", {
+        dateStyle: "medium",
+        timeStyle: "short",
+        timeZone: "Asia/Bangkok"
+      }).format(date);
+    }
+
+    function getStatusInfo(status) {
+      const values = {
+        submitted: {
+          text: "รอตรวจสอบ",
+          className: "status-submitted"
+        },
+
+        approved: {
+          text: "อนุมัติแล้ว",
+          className: "status-approved"
+        },
+
+        rejected: {
+          text: "ปฏิเสธแล้ว",
+          className: "status-rejected"
+        }
+      };
+
+      return values[status] || {
+        text: status || "ไม่ทราบสถานะ",
+        className: "status-submitted"
+      };
+    }
+
+    function renderPayments() {
+      const payments = currentFilter === "all"
+        ? allPayments
+        : allPayments.filter(
+            (item) =>
+              item.payment_status === currentFilter
+          );
+
+      if (payments.length === 0) {
+        paymentsArea.innerHTML = `
+          <div class="status-message">
+            ไม่พบรายการชำระเงินในสถานะนี้
+          </div>
+        `;
+
+        return;
+      }
+
+      paymentsArea.innerHTML = `
+        <div class="payments-grid">
+          ${payments.map((payment) => {
+            const statusInfo = getStatusInfo(
+              payment.payment_status
+            );
+
+            const orderId = Number(payment.id);
+
+            const slipUrl =
+              `/api/admin/slip?order_id=${encodeURIComponent(
+                orderId
+              )}`;
+
+            return `
+              <article class="payment-card">
+                <div class="slip-wrapper">
+                  <img
+                    class="slip-image"
+                    src="${slipUrl}"
+                    alt="สลิปคำสั่งซื้อ #${orderId}"
+                    loading="lazy"
+                    onerror="
+                      this.style.display='none';
+                      this.nextElementSibling.style.display='grid';
+                    "
+                  >
+
+                  <div
+                    class="slip-loading"
+                    style="display:none;"
+                  >
+                    ไม่สามารถแสดงรูปสลิปได้
+                  </div>
+                </div>
+
+                <div class="card-content">
+                  <h2 class="order-title">
+                    คำสั่งซื้อ #${orderId}
+                  </h2>
+
+                  <div class="details">
+                    <div>
+                      <strong>ลูกค้า:</strong>
+                      ${escapeHtml(
+                        payment.customer_name ||
+                        "ไม่ระบุชื่อ"
+                      )}
+                    </div>
+
+                    <div>
+                      <strong>อีเมล:</strong>
+                      ${escapeHtml(
+                        payment.customer_email || "-"
+                      )}
+                    </div>
+
+                    <div>
+                      <strong>คอนเสิร์ต:</strong>
+                      ${escapeHtml(
+                        payment.concert_title ||
+                        `Event #${payment.event_id}`
+                      )}
+                    </div>
+
+                    <div>
+                      <strong>ยอดชำระ:</strong>
+                      ฿${formatMoney(payment.amount)}
+                    </div>
+
+                    <div>
+                      <strong>ส่งสลิปเมื่อ:</strong>
+                      ${formatDateTime(
+                        payment.slip_uploaded_at
+                      )}
+                    </div>
+                  </div>
+
+                  <div
+                    class="
+                      status-badge
+                      ${statusInfo.className}
+                    "
+                  >
+                    ${statusInfo.text}
+                  </div>
+
+                  <a
+                    class="open-slip"
+                    href="${slipUrl}"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    เปิดรูปสลิปเต็มจอ
+                  </a>
+                </div>
+              </article>
+            `;
+          }).join("")}
+        </div>
+      `;
+    }
+
+    async function loadPayments() {
+      paymentsArea.innerHTML = `
+        <div class="status-message">
+          กำลังโหลดรายการชำระเงิน...
+        </div>
+      `;
+
+      try {
+        const response = await fetch(
+          "/api/admin/payments",
+          {
+            headers: {
+              "Accept": "application/json"
+            },
+            credentials: "include"
+          }
+        );
+
+        const data = await response.json();
+
+        if (response.status === 401) {
+          window.location.href =
+            "login.html?redirect=" +
+            encodeURIComponent(
+              window.location.href
+            );
+
+          return;
+        }
+
+        if (!response.ok || !data.success) {
+          throw new Error(
+            data.message ||
+            "โหลดรายการชำระเงินไม่สำเร็จ"
+          );
+        }
+
+        allPayments = Array.isArray(data.payments)
+          ? data.payments
+          : [];
+
+        renderPayments();
+      } catch (error) {
+        console.error(
+          "Load admin payments error:",
+          error
+        );
+
+        paymentsArea.innerHTML = `
+          <div class="status-message">
+            ${escapeHtml(error.message)}
+          </div>
+        `;
+      }
+    }
+
+    document
+      .querySelectorAll(".filter-button")
+      .forEach((button) => {
+        button.addEventListener("click", () => {
+          document
+            .querySelectorAll(".filter-button")
+            .forEach((item) => {
+              item.classList.remove("active");
+            });
+
+          button.classList.add("active");
+
+          currentFilter =
+            button.dataset.status || "all";
+
+          renderPayments();
+        });
+      });
+
+    loadPayments();
+  </script>
+</body>
+</html>
