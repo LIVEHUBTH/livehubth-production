@@ -258,12 +258,22 @@ LIVEHUB TH
 </div>
 
 </div>
-<script>
+<script src="https://cdn.jsdelivr.net/gh/davidshimjs/qrcodejs/qrcode.min.js"></script>
+  <script>
   const paymentArea = document.getElementById("paymentArea");
 
   let selectedConcert = null;
   let currentOrderId = null;
+/*
+  เปลี่ยนเป็นหมายเลข PromptPay ของคุณเอง
 
+  ใช้ได้:
+  - เบอร์โทรศัพท์ 10 หลัก เช่น 0812345678
+  - เลขบัตรประชาชน 13 หลัก
+
+  ไม่ต้องใส่ขีดหรือเว้นวรรค
+*/
+const PROMPTPAY_ID = "0812345678";
   function escapeHtml(value) {
     return String(value ?? "")
       .replaceAll("&", "&amp;")
@@ -456,7 +466,157 @@ const response = await fetch("/api/orders", {
       `;
 
       orderButton.textContent = "สร้างคำสั่งซื้อสำเร็จ";
+function qrField(id, value) {
+  const text = String(value);
 
+  return (
+    String(id).padStart(2, "0") +
+    String(text.length).padStart(2, "0") +
+    text
+  );
+}
+
+function normalizePromptPayId(value) {
+  const id = String(value || "").replace(/\D/g, "");
+
+  if (/^0\d{9}$/.test(id)) {
+    return {
+      type: "01",
+      value: `0066${id.slice(1)}`
+    };
+  }
+
+  if (/^\d{13}$/.test(id)) {
+    return {
+      type: "02",
+      value: id
+    };
+  }
+
+  throw new Error(
+    "หมายเลข PromptPay ต้องเป็นเบอร์โทร 10 หลัก หรือเลขบัตรประชาชน 13 หลัก"
+  );
+}
+
+function crc16Ccitt(value) {
+  let crc = 0xffff;
+
+  for (let index = 0; index < value.length; index++) {
+    crc ^= value.charCodeAt(index) << 8;
+
+    for (let bit = 0; bit < 8; bit++) {
+      crc = (crc & 0x8000)
+        ? ((crc << 1) ^ 0x1021)
+        : (crc << 1);
+
+      crc &= 0xffff;
+    }
+  }
+
+  return crc
+    .toString(16)
+    .toUpperCase()
+    .padStart(4, "0");
+}
+
+function createPromptPayPayload(promptPayId, amount) {
+  const receiver = normalizePromptPayId(promptPayId);
+  const numericAmount = Number(amount);
+
+  if (
+    !Number.isFinite(numericAmount) ||
+    numericAmount <= 0
+  ) {
+    throw new Error("ยอดชำระเงินไม่ถูกต้อง");
+  }
+
+  const merchantAccount =
+    qrField("00", "A000000677010111") +
+    qrField(receiver.type, receiver.value);
+
+  let payload =
+    qrField("00", "01") +
+    qrField("01", "12") +
+    qrField("29", merchantAccount) +
+    qrField("53", "764") +
+    qrField("54", numericAmount.toFixed(2)) +
+    qrField("58", "TH") +
+    "6304";
+
+  payload += crc16Ccitt(payload);
+
+  return payload;
+}
+
+function renderPromptPayQr(amount) {
+  const qrArea = document.getElementById("qrArea");
+
+  if (!qrArea) {
+    return;
+  }
+
+  try {
+    const payload = createPromptPayPayload(
+      PROMPTPAY_ID,
+      amount
+    );
+
+    qrArea.innerHTML = `
+      <div
+        id="promptpayQr"
+        style="
+          display:flex;
+          justify-content:center;
+          padding:12px;
+        "
+      ></div>
+
+      <p
+        style="
+          margin:16px 0 4px;
+          color:#111111;
+          font-weight:bold;
+        "
+      >
+        สแกนเพื่อชำระ ฿${Number(amount).toLocaleString(
+          "th-TH",
+          {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2
+          }
+        )}
+      </p>
+
+      <p
+        style="
+          margin:6px 0 0;
+          color:#555555;
+          font-size:14px;
+        "
+      >
+        กรุณาตรวจสอบชื่อผู้รับและยอดเงินในแอปธนาคารก่อนยืนยัน
+      </p>
+    `;
+
+    new QRCode(
+      document.getElementById("promptpayQr"),
+      {
+        text: payload,
+        width: 260,
+        height: 260,
+        correctLevel: QRCode.CorrectLevel.M
+      }
+    );
+  } catch (error) {
+    console.error("PromptPay QR error:", error);
+
+    qrArea.innerHTML = `
+      <p style="color:#b00020;">
+        ${escapeHtml(error.message)}
+      </p>
+    `;
+  }
+}
       showPaymentSection(
         currentOrderId,
         Number(data.amount || selectedConcert.price)
@@ -665,6 +825,7 @@ const response = await fetch("/api/orders", {
   }
 
   initializePaymentPage();
+  <script src="https://cdn.jsdelivr.net/gh/davidshimjs/qrcodejs/qrcode.min.js"></script>
 </script>
 </body>
 </html>
