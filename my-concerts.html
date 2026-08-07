@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  >
+
+  <title>คอนเสิร์ตของฉัน | LIVEHUB TH</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background:
+        radial-gradient(
+          circle at top,
+          #351025 0,
+          #10050c 35%,
+          #050505 75%
+        );
+      color: #ffffff;
+      font-family: Arial, sans-serif;
+    }
+
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 20px 28px;
+      border-bottom: 1px solid #3b102b;
+      background: rgba(5, 5, 5, 0.92);
+    }
+
+    .brand {
+      color: #ff1493;
+      font-size: 22px;
+      font-weight: bold;
+      text-decoration: none;
+    }
+
+    header a:last-child {
+      color: #ffffff;
+      text-decoration: none;
+    }
+
+    .container {
+      width: min(1100px, calc(100% - 30px));
+      margin: auto;
+      padding: 45px 0 80px;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(34px, 7vw, 58px);
+    }
+
+    .subtitle {
+      margin-top: 12px;
+      margin-bottom: 35px;
+      color: #bbbbbb;
+      line-height: 1.7;
+    }
+
+    .concert-grid {
+      display: grid;
+      grid-template-columns:
+        repeat(auto-fit, minmax(280px, 1fr));
+      gap: 24px;
+    }
+
+    .concert-card {
+      overflow: hidden;
+      border: 1px solid #7d1954;
+      border-radius: 24px;
+      background: #111116;
+      box-shadow:
+        0 15px 45px rgba(255, 20, 147, 0.08);
+    }
+
+    .cover {
+      width: 100%;
+      height: 260px;
+      object-fit: cover;
+      display: block;
+      background: #1c0b17;
+    }
+
+    .content {
+      padding: 24px;
+    }
+
+    .badge {
+      display: inline-block;
+      margin-bottom: 14px;
+      padding: 7px 12px;
+      border: 1px solid #26894c;
+      border-radius: 999px;
+      background: #102819;
+      color: #aaf3c0;
+      font-size: 14px;
+      font-weight: bold;
+    }
+
+    .title {
+      margin: 0 0 12px;
+      color: #ff4eaa;
+      font-size: 27px;
+    }
+
+    .date {
+      margin-bottom: 20px;
+      color: #cccccc;
+    }
+
+    .watch-button {
+      display: block;
+      width: 100%;
+      padding: 15px;
+      border: 0;
+      border-radius: 14px;
+      background: #ff1493;
+      color: #ffffff;
+      text-align: center;
+      text-decoration: none;
+      font-size: 17px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    .watch-button:hover {
+      background: #e6007e;
+    }
+
+    .message {
+      padding: 35px 20px;
+      border: 1px solid #432039;
+      border-radius: 20px;
+      background: #111116;
+      color: #cccccc;
+      text-align: center;
+      line-height: 1.7;
+    }
+
+    @media (max-width: 600px) {
+      header {
+        padding: 18px;
+      }
+
+      .container {
+        padding-top: 30px;
+      }
+
+      .cover {
+        height: 220px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <header>
+    <a
+      href="index.html"
+      class="brand"
+    >
+      LIVEHUB TH
+    </a>
+
+    <a href="dashboard.html">
+      บัญชีของฉัน
+    </a>
+  </header>
+
+  <main class="container">
+
+    <h1>
+      คอนเสิร์ตของฉัน
+    </h1>
+
+    <p class="subtitle">
+      คอนเสิร์ตที่คุณมีสิทธิ์เข้าชม
+    </p>
+
+    <div id="concertArea">
+      <div class="message">
+        กำลังโหลดคอนเสิร์ตของคุณ...
+      </div>
+    </div>
+
+  </main>
+
+  <script>
+    const concertArea =
+      document.getElementById("concertArea");
+
+    function escapeHtml(value) {
+      return String(value ?? "")
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+    }
+
+    function formatDate(value) {
+      if (!value) {
+        return "รอประกาศวันและเวลา";
+      }
+
+      const date = new Date(value);
+
+      if (Number.isNaN(date.getTime())) {
+        return escapeHtml(value);
+      }
+
+      return new Intl.DateTimeFormat(
+        "th-TH",
+        {
+          dateStyle: "long",
+          timeStyle: "short",
+          timeZone: "Asia/Bangkok"
+        }
+      ).format(date);
+    }
+
+    function renderConcerts(concerts) {
+      if (!concerts.length) {
+        concertArea.innerHTML = `
+          <div class="message">
+            คุณยังไม่มีคอนเสิร์ตที่สามารถเข้าชมได้
+          </div>
+        `;
+
+        return;
+      }
+
+      concertArea.innerHTML = `
+        <div class="concert-grid">
+
+          ${concerts.map((concert) => {
+
+            const id = Number(concert.id);
+
+            const cover =
+              concert.cover_image ||
+              "/cover.png";
+
+            return `
+              <article class="concert-card">
+
+                <img
+                  class="cover"
+                  src="${escapeHtml(cover)}"
+                  alt="${escapeHtml(concert.title)}"
+                >
+
+                <div class="content">
+
+                  <div class="badge">
+                    ✓ มีสิทธิ์เข้าชม
+                  </div>
+
+                  <h2 class="title">
+                    ${escapeHtml(concert.title)}
+                  </h2>
+
+                  <div class="date">
+                    ${formatDate(
+                      concert.event_date
+                    )}
+                  </div>
+
+                  <a
+                    class="watch-button"
+                    href="watch.html?event_id=${id}"
+                  >
+                    ▶ เข้าชมคอนเสิร์ต
+                  </a>
+
+                </div>
+
+              </article>
+            `;
+          }).join("")}
+
+        </div>
+      `;
+    }
+
+    async function loadConcerts() {
+      try {
+        const response = await fetch(
+          "/api/my-concerts",
+          {
+            headers: {
+              "Accept": "application/json"
+            },
+
+            credentials: "include"
+          }
+        );
+
+        const data = await response.json();
+
+        if (response.status === 401) {
+          window.location.href =
+            "login.html?redirect=" +
+            encodeURIComponent(
+              window.location.href
+            );
+
+          return;
+        }
+
+        if (!response.ok || !data.success) {
+          throw new Error(
+            data.message ||
+            "โหลดคอนเสิร์ตไม่สำเร็จ"
+          );
+        }
+
+        renderConcerts(
+          Array.isArray(data.concerts)
+            ? data.concerts
+            : []
+        );
+
+      } catch (error) {
+
+        console.error(
+          "Load concerts error:",
+          error
+        );
+
+        concertArea.innerHTML = `
+          <div class="message">
+            ${escapeHtml(error.message)}
+          </div>
+        `;
+      }
+    }
+
+    loadConcerts();
+  </script>
+
+</body>
+</html>
